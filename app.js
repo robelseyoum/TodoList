@@ -80,3 +80,42 @@ app.delete("/todo/delete/:id", (req, res, next) => {
     res.send(200);
   });
 });
+
+//get request for edit (update the content from the database)
+//routers
+app.get("/todo/edit/:id", (req, res, next) => {
+  const query = { _id: ObjectID(req.params.id) };
+
+  //fetch data from mongodb table 'todos'
+  Todos.find(query).next((err, todo) => {
+    if (err) {
+      return console.log(err);
+    }
+    //console.log(todos);
+    //pass to the views
+    res.render("edit", {
+      todo: todo
+    });
+  });
+});
+
+//
+//post request route for updating the new input from user as post request
+app.post("/todo/edit/:id", (req, res, next) => {
+  const query = { _id: ObjectID(req.params.id) };
+
+  //create to do object to add to the mongodb
+  const todo = {
+    text: req.body.text,
+    body: req.body.body
+  };
+
+  //Insert the todo object into db
+  Todos.updateOne(query, { $set: todo }, (err, result) => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log("Todo updated..");
+    res.redirect("/");
+  });
+});
